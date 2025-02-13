@@ -58,18 +58,58 @@ app.get('/fetchReviews/dealer/:id', async (req, res) => {
 
 // Express route to fetch all dealerships
 app.get('/fetchDealers', async (req, res) => {
-//Write your code here
+    try {
+        const dealers = await Dealerships.find(); // Fetch all dealers
+        res.json(dealers);  // Send JSON response
+      } catch (error) {
+        console.error("Error fetching dealers:", error);
+        res.status(500).json({ error: 'Error fetching dealers' });
+      }
 });
 
 // Express route to fetch Dealers by a particular state
 app.get('/fetchDealers/:state', async (req, res) => {
-//Write your code here
+    try {
+        const stateParam = req.params.state;
+        console.log(`Fetching dealers for state: ${stateParam}`);
+
+        // Fetch dealers where "state" matches the given state parameter
+        const dealers = await Dealerships.find({ state: stateParam });
+
+        // Check if dealers were found
+        if (dealers.length === 0) {
+            return res.status(404).json({ error: `No dealers found in state: ${stateParam}` });
+        }
+
+        res.json(dealers);  // Send back the list of dealerships
+    } catch (error) {
+        console.error("Error fetching dealers by state:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
-// Express route to fetch dealer by a particular id
+
+// Express route to fetch dealer by a particular ID
 app.get('/fetchDealer/:id', async (req, res) => {
-//Write your code here
+    try {
+        const dealerId = parseInt(req.params.id); // Convert ID to integer
+        console.log(`Fetching dealer with ID: ${dealerId}`);
+
+        // Query MongoDB for a dealer with the given ID
+        const dealer = await Dealerships.find({ id: dealerId });
+
+        // Check if dealer was found
+        if (!dealer) {
+            return res.status(404).json({ error: `No dealer found with ID: ${dealerId}` });
+        }
+
+        res.json(dealer); // Send back the dealer details
+    } catch (error) {
+        console.error("Error fetching dealer by ID:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
+
 
 //Express route to insert review
 app.post('/insert_review', express.raw({ type: '*/*' }), async (req, res) => {
